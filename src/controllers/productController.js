@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const { analyzeProductWithAI } = require("../services/aiService");
+const { logAIInteraction } = require("../utils/logger");
 
 const analyzeProduct = async (req, res, next) => {
   try {
@@ -11,7 +12,13 @@ const analyzeProduct = async (req, res, next) => {
       throw error;
     }
 
+    const ai_prompt = "stored prompt";
     const aiResult = await analyzeProductWithAI(name, description);
+    await logAIInteraction({
+      name,
+      prompt: ai_prompt,
+      response: aiResult
+    });
 
     const product = new Product({
       name,
@@ -20,7 +27,7 @@ const analyzeProduct = async (req, res, next) => {
       subcategory: aiResult.subcategory,
       seo_tags: aiResult.seo_tags,
       sustainability_filters: aiResult.sustainability_filters,
-      ai_prompt: "stored prompt",
+      ai_prompt,
       ai_response: aiResult
     });
 
